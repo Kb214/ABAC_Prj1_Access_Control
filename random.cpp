@@ -41,9 +41,15 @@ int main(){
         std::uniform_int_distribution<size_t> dist(2,n);
         int random = dist(gen);
 
+        std::cout << "User " << i + 1 << ": ";
 
-        std::cout << "User " << i + 1 << ": " << random;
-        std::cout << "\n\n";
+        for(int p = 0; p < random; p++){
+            std::cout << attr.at(p) << " ";
+        }
+
+        std::cout << "\n";
+    
+    
     }
 
     // for(auto a : attr){
