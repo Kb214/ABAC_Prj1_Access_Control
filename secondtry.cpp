@@ -52,6 +52,8 @@ bool attribSearch(int userID, const std::string& attr){
     std::cout<< "Policy is invalid.\n";
 }
 
+
+
 bool AND(const std::string& attr1, const std::string& attr2, int userID){
 
 
@@ -88,8 +90,9 @@ bool TWOOF(const std::string& attr1, const std::string& attr2, const std::string
             matches++;
         }
     }
-    
-    if(matches == 2 && attribSearch(userID, attr1) && attribSearch(userID, attr2)){
+
+    if(matches == 2 || attribSearch(userID, attr1) && attribSearch(userID, attr2)){
+
         return true;
     } else{
         return false;
@@ -98,7 +101,7 @@ bool TWOOF(const std::string& attr1, const std::string& attr2, const std::string
 
 
 
-bool parsePolicy(std::string& policy, std::string& attr1, std::string& op , std::string& attr2){
+bool parsePolicy( std::string& policy,std::string& attr1,std::string& op ,std::string& attr2){
     std::istringstream input(policy);
     std::string extra;
 
@@ -109,7 +112,7 @@ bool parsePolicy(std::string& policy, std::string& attr1, std::string& op , std:
     return op == "AND" || op == "OR";
 }
 
-bool parsePolicy2(std::string& policy, std::string& attr1, std::string& op, std::string& attr2, std::string& op2, std::string& attr3, std::string& op3,std::string& attr4){
+bool parsePolicy2( std::string& policy, std::string& attr1, std::string& op, std::string& attr2, std::string& op2, std::string& attr3,  std::string& op3, std::string& attr4){
     
     std::istringstream input(policy);
     std::string extra;
@@ -123,7 +126,7 @@ bool parsePolicy2(std::string& policy, std::string& attr1, std::string& op, std:
 
 }
 
-bool parsePolicy3(std::string& policy, std::string& attr1,std::string& op, std::string& attr2, std::string& op2, std::string clause , std::string& attr3, std::string& attr4, std::string& attr5){
+bool parsePolicy3( std::string& policy, std::string& attr1, std::string& op,  std::string& attr2, std::string& op2, std::string clause , std::string& attr3, std::string& attr4, std::string& attr5){
     
     std::istringstream input(policy);
     std::string extra;
@@ -132,9 +135,14 @@ bool parsePolicy3(std::string& policy, std::string& attr1,std::string& op, std::
         return false;
     }
 
-    return (op == "AND" || op == "OR") && (op2 == "AND" || op2 == "OR") && (clause == "2 of");
+    return (op == "AND" || op == "OR") && (op2 == "AND" || op2 == "OR") && (clause == "2of");
 
 }
+
+
+
+
+
 
 int main(){
     int numb_att;
@@ -226,19 +234,39 @@ int main(){
 
 
 
-        if(!parsePolicy(policy, attrib1, op, attrib2) || !parsePolicy2(policy, attrib1, op, attrib2, op2, attrib3,op3, attrib4) || !parsePolicy3(policy, attrib1, op, attrib2, op2, clause, attrib3, attrib4, attrib5)){
-            std::cout << "Invalid policy format. Please enter a valid policy.\n";
+        // if(!parsePolicy(policy, attrib1, op, attrib2) || !parsePolicy2(policy, attrib1, op, attrib2, op2, attrib3,op3, attrib4) || !parsePolicy3(policy, attrib1, op, attrib2, op2, clause, attrib3, attrib4, attrib5)){
+        //     std::cout << "Invalid policy format. Please enter a valid policy.\n";
            
-        }else if(bool valid = (op == "AND") ? AND(attrib1, attrib2, id) : OR(attrib1, attrib2, id)){
-            std::cout << (valid ? "policy is valid.\n" : "Policy is invalid.\n");
+        // }else if(bool valid = (op == "AND") ? AND(attrib1, attrib2, id) : OR(attrib1, attrib2, id)){
+        //     std::cout << (valid ? "policy is valid.\n" : "Policy is invalid.\n");
 
-        }else if(policy.find("AND") && policy.find("OR")){
+        // }else if(policy.find("AND") && policy.find("OR")){
 
-            ANDOR(attrib1, attrib2, attrib3, attrib4, id);
+        //     ANDOR(attrib1, attrib2, attrib3, attrib4, id);
 
-        }else if(policy.find("2 of")){
-            TWOOF(attrib1, attrib2, attrib3, attrib4, attrib5, id);
+        // }else if(policy.find("2 of")){
+        //     TWOOF(attrib1, attrib2, attrib3, attrib4, attrib5, id);
+        // }
+
+
+        if(parsePolicy(policy, attrib1, op, attrib2) && policy.find("AND") != std::string::npos || policy.find("OR") != std::string::npos && !policy.find("2of")){
+            bool valid = (op == "AND") ? AND(attrib1, attrib2, id) : OR(attrib1, attrib2, id);
+            std::cout << (valid ? "Policy is valid.\n" : "Policy is invalid.\n");
+        }else if(parsePolicy2(policy, attrib1, op, attrib2, op2, attrib3, op3, attrib4) && policy.find("AND") != std::string::npos && policy.find("OR") != std::string::npos && !policy.find("2of")){
+    
+            bool valid = ANDOR(attrib1, attrib2, attrib3, attrib4, id);
+            std::cout << (valid ? "Policy is valid.\n" : "Policy is invalid.\n");
+
+        }else if(parsePolicy3(policy, attrib1, op, attrib2, op2, clause, attrib3, attrib4, attrib5) && policy.find("2of") != std::string::npos){
+
+            bool valid = TWOOF(attrib1, attrib2, attrib3, attrib4, attrib5, id);
+            std::cout << (valid ? "Policy is valid.\n" : "Policy is invalid.\n");
+
+        }else{
+            std::cout << "Invalid policy format. Please enter a valid policy.\n";
         }
+
+
             
         // if(policy.find("AND") != std::string::npos){
 
