@@ -22,6 +22,12 @@ DESCRIPTION:
 
 
 
+the searching of attributes is done wrong. we need to find the attributes not by number/index
+but by the attributes name. when user inputs "attrib1 AND attrib2" we need to use the find function
+to search for the attributes in the vector. 
+
+
+
 */
 
 struct User_Attrib{
@@ -126,52 +132,86 @@ int main(){
         std::getline(std::cin, policy);
 
 
-        if(attribSearch(id, policy)){
+        // if(attribSearch(id, policy)){
+        //     std::cout << "Policy is valid.\n";
+
+        // } else if(policy.find("AND")){
+
+        //     if(AND(a[0],a[1], id) == true){
+        //         std::cout << "policy is valid.\n";
+        //     }
+
+
+        // } else if(policy.find("OR")){
+
+        //     if(OR(a[0], a[1], id) == true){
+        //         std::cout << "policy is valid.\n";
+        //     }
+
+        // } else if(policy.find("AND") && policy.find("OR")){
+
+        
+        //     if(AND(a[0], a[1], id) || OR(a[0], a[1], id)==true){
+        //         std::cout << "policy is valid.\n";
+        //     }
+
+        // }else{
+
+        //     std::cout << "Policy is invalid. Please enter a valid policy.\n";
+
+        // }
+
+        std::string attrib1, attrib2;
+
+
+        if(policy.find("AND") != std::string::npos){
+
+            if(AND(attrib1, attrib2, id) == true){
+                std::cout << "Policy is valid.\n";
+            } else{
+                std::cout << "Policy is invalid.\n";
+            }
+
+
+        }else if(policy.find("OR") != std::string::npos){
+            
+            if(OR(attrib1,attrib2, id) == true){
+                std::cout << "Policy is valid.\n";
+            } else{
+                std::cout << "Policy is invalid.\n";
+            }
+
+
+        }else if(policy.find("AND") && policy.find("OR") != std::string::npos){
+            if(AND(a[0], a[1], id) || OR(a[0], a[1], id)==true){
+                std::cout << "Policy is valid.\n";
+            } else{
+                std::cout << "Policy is invalid.\n";
+            }
+
+
+        } else if(attribSearch(id, policy) == true){
             std::cout << "Policy is valid.\n";
 
-        } else if(policy.find("AND")){
 
-            AND(a[0], a[1], id);
+        } else if(attribSearch(id, policy) == false){
+            std::cout << "Policy is invalid.\n";
 
-
-            if(AND(a[0],a[1], id) == true){
-                std::cout << "policy is valid.\n";
-            } else{
-                std::cout << "policy is invalid.\n";
-            }
-
-
-        } else if(policy.find("OR")){
-
-            OR(a[0], a[1], id);
-
-
-            if(OR(a[0], a[1], id) == true){
-                std::cout << "policy is valid.\n";
-            } else{
-                std::cout << "policy is invalid.\n";
-            }
-
-
-        } else if(policy.find("AND") && policy.find("OR")){
-
-            AND(a[0], a[1], id) || OR(a[0], a[1], id);
-
-
-            if(AND(a[0], a[1], id) || OR(a[0], a[1], id)==true){
-                std::cout << "policy is valid.\n";
-            } else{
-                std::cout << "policy is invalid.\n";
-            }
-
-
-        }else{
-
-            std::cout << "Policy is invalid. Please enter a valid policy.\n";
 
         }
 
-        return false;
+
+
+
+
+        std::cout << "do you want to check another user policy? (y/n): ";
+        char choice;
+        std::cin >> choice;
+        if(choice == 'y'){
+            continue;
+        } else{
+            return false;
+        }
     }
 
 
