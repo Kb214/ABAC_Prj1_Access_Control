@@ -6,6 +6,7 @@
 #include <ctime>
 #include <algorithm>
 #include <vector>
+#include <sstream>
 
 /*
 DESCRIPTION:
@@ -13,10 +14,8 @@ DESCRIPTION:
 1. Input number of n total attribs in system [X]
 2. generate n-type of attrbs [X]
 3. generate 10 users with random attrbs from set of n [at least 2]  [ X ]
-4. prog allows user input as (attrib1 AND attrib2)OR
-                             (2 of (attrib3, attrib4, attrib5)); [ ]
-                             (attrib1 AND attrib2)OR
-                             (attrib3 AND attrib4)
+4. prog allows user input as (attrib1 AND attrib2)OR(2 of (attrib3, attrib4, attrib5)); [ ]
+                             (attrib1 AND attrib2)OR(attrib3 AND attrib4)
 [AND, OR need to be capitalized]
 5. evaluation is processed when user inputs attrbs. program returns true or false [ ]
 
@@ -38,7 +37,7 @@ struct User_Attrib{
 
 std::vector<User_Attrib> UA;
 
-bool attribSearch(int userID, std::string& attr){
+bool attribSearch(int userID, const std::string& attr){
     for(auto& u: UA){
         if(u.User_ID == userID){
             for(auto& a: u.random_attrib){
@@ -53,7 +52,7 @@ bool attribSearch(int userID, std::string& attr){
     std::cout<< "Policy is invalid.\n";
 }
 
-bool AND(std::string& attr1, std::string& attr2, int userID){
+bool AND(const std::string& attr1, const std::string& attr2, int userID){
 
 
     if(attribSearch(userID, attr1) && attribSearch(userID, attr2)){
@@ -64,7 +63,7 @@ bool AND(std::string& attr1, std::string& attr2, int userID){
 
 }
 
-bool OR(std::string& attr1, std::string& attr2, int userID){
+bool OR(const std::string& attr1, const std::string& attr2, int userID){
 
     if(attribSearch(userID, attr1) || attribSearch(userID, attr2)){
         return true;
@@ -74,6 +73,68 @@ bool OR(std::string& attr1, std::string& attr2, int userID){
 
 }
 
+bool ANDOR(const std::string& attr1, const std::string& attr2, const std::string& attr3, const std::string& attr4, int userID){
+    if((attribSearch(userID, attr1) && attribSearch(userID, attr2)) || (attribSearch(userID, attr3) && attribSearch(userID, attr4))){
+        return true;
+    } else{
+        return false;
+    }
+}
+
+bool TWOOF(const std::string& attr1, const std::string& attr2, const std::string& attr3, const std::string& attr4, const std::string& attr5, int userID){
+    int matches = 0;
+    for(auto& attr : {attr3, attr4, attr5}){
+        if(attribSearch(userID, attr)){
+            matches++;
+        }
+    }
+    
+    if(matches == 2 && attribSearch(userID, attr1) && attribSearch(userID, attr2)){
+        return true;
+    } else{
+        return false;
+    }
+}  
+
+
+
+bool parsePolicy(std::string& policy, std::string& attr1, std::string& op , std::string& attr2){
+    std::istringstream input(policy);
+    std::string extra;
+
+    if(!(input >> attr1 >> op >> attr2) || (input >> extra)){
+        return false;
+    }
+
+    return op == "AND" || op == "OR";
+}
+
+bool parsePolicy2(std::string& policy, std::string& attr1, std::string& op, std::string& attr2, std::string& op2, std::string& attr3, std::string& op3,std::string& attr4){
+    
+    std::istringstream input(policy);
+    std::string extra;
+
+    if(!(input >> attr1 >> op >> attr2 >> op2 >> attr3 >> op3 >> attr4) || (input >> extra)){
+        return false;
+    }
+
+    return (op == "AND" || op == "OR") && (op2 == "AND" || op2 == "OR") && (op3 == "AND" || op3 == "OR");
+
+
+}
+
+bool parsePolicy3(std::string& policy, std::string& attr1,std::string& op, std::string& attr2, std::string& op2, std::string clause , std::string& attr3, std::string& attr4, std::string& attr5){
+    
+    std::istringstream input(policy);
+    std::string extra;
+
+    if(!(input >> attr1 >> op >> attr2 >> op2 >> clause >> attr3 >> attr4 >> attr5) || (input >> extra)){
+        return false;
+    }
+
+    return (op == "AND" || op == "OR") && (op2 == "AND" || op2 == "OR") && (clause == "2 of");
+
+}
 
 int main(){
     int numb_att;
@@ -161,44 +222,62 @@ int main(){
 
         // }
 
-        std::string attrib1, attrib2;
+        std::string attrib1, attrib2, attrib3, attrib4, attrib5, op, op2, op3, clause;
 
 
-        if(policy.find("AND") != std::string::npos){
 
-            if(AND(attrib1, attrib2, id) == true){
-                std::cout << "Policy is valid.\n";
-            } else{
-                std::cout << "Policy is invalid.\n";
-            }
+        if(!parsePolicy(policy, attrib1, op, attrib2) || !parsePolicy2(policy, attrib1, op, attrib2, op2, attrib3,op3, attrib4) || !parsePolicy3(policy, attrib1, op, attrib2, op2, clause, attrib3, attrib4, attrib5)){
+            std::cout << "Invalid policy format. Please enter a valid policy.\n";
+           
+        }else if(bool valid = (op == "AND") ? AND(attrib1, attrib2, id) : OR(attrib1, attrib2, id)){
+            std::cout << (valid ? "policy is valid.\n" : "Policy is invalid.\n");
 
+        }else if(policy.find("AND") && policy.find("OR")){
 
-        }else if(policy.find("OR") != std::string::npos){
-            
-            if(OR(attrib1,attrib2, id) == true){
-                std::cout << "Policy is valid.\n";
-            } else{
-                std::cout << "Policy is invalid.\n";
-            }
+            ANDOR(attrib1, attrib2, attrib3, attrib4, id);
 
-
-        }else if(policy.find("AND") && policy.find("OR") != std::string::npos){
-            if(AND(a[0], a[1], id) || OR(a[0], a[1], id)==true){
-                std::cout << "Policy is valid.\n";
-            } else{
-                std::cout << "Policy is invalid.\n";
-            }
-
-
-        } else if(attribSearch(id, policy) == true){
-            std::cout << "Policy is valid.\n";
-
-
-        } else if(attribSearch(id, policy) == false){
-            std::cout << "Policy is invalid.\n";
-
-
+        }else if(policy.find("2 of")){
+            TWOOF(attrib1, attrib2, attrib3, attrib4, attrib5, id);
         }
+            
+        // if(policy.find("AND") != std::string::npos){
+
+        //     if(AND(attrib1, attrib2, id) == true){
+        //         std::cout << "Policy is valid.\n";
+        //     } else{
+        //         std::cout << "Policy is invalid.\n";
+        //     }
+
+
+        // }else if(policy.find("OR") != std::string::npos){
+            
+        //     if(OR(attrib1,attrib2, id) == true){
+        //         std::cout << "Policy is valid.\n";
+        //     } else{
+        //         std::cout << "Policy is invalid.\n";
+        //     }
+
+
+        // }
+        
+        
+        // if(policy.find("AND") && policy.find("OR") != std::string::npos){
+        //     if(AND(a[0], a[1], id) || OR(a[0], a[1], id)==true){
+        //         std::cout << "Policy is valid.\n";
+        //     } else{
+        //         std::cout << "Policy is invalid.\n";
+        //     }
+
+
+        // }else if(attribSearch(id, policy) == true){
+        //     std::cout << "Policy is valid.\n";
+
+
+        // } else if(attribSearch(id, policy) == false){
+        //     std::cout << "Policy is invalid.\n";
+
+
+        // }
 
 
 
